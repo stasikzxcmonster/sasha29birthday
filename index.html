@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sasha OS v29.0 Release</title>
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --accent: #58a6ff;
+            --green: #238636;
+            --red: #da3633;
+            --purple: #8957e5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .terminal {
+            background: #010409;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .terminal-header {
+            background: var(--card);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+        .terminal-title { margin-left: 10px; font-size: 13px; color: #8b949e; font-family: monospace; }
+
+        .terminal-body {
+            padding: 20px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            color: #3fb950;
+            min-height: 140px;
+        }
+
+        .line { margin-bottom: 8px; opacity: 0; animation: fadeIn 0.4s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+
+        .badge {
+            display: inline-block;
+            background: rgba(137, 87, 229, 0.2);
+            color: #d2a8ff;
+            border: 1px solid var(--purple);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .timer-box {
+            background: rgba(88, 166, 255, 0.08);
+            border: 1px dashed var(--accent);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .timer-label { font-size: 13px; color: #8b949e; margin-bottom: 5px; }
+        .timer-digits { font-size: 22px; font-weight: bold; color: var(--accent); font-family: monospace; }
+
+        h2 { font-size: 20px; color: #fff; margin-bottom: 15px; }
+        .changelog-list { list-style: none; }
+        .changelog-list li {
+            margin-bottom: 12px;
+            padding-left: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .tag {
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 7px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+        .tag-add { background: rgba(35, 134, 54, 0.25); color: #3fb950; border: 1px solid #238636; }
+        .tag-fix { background: rgba(88, 166, 255, 0.25); color: #58a6ff; border: 1px solid #1f6feb; }
+        .tag-dep { background: rgba(218, 54, 51, 0.25); color: #f85149; border: 1px solid #da3633; }
+
+        .interactive-area {
+            text-align: center;
+            position: relative;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        .btn-yes { background: var(--green); color: #fff; }
+        .btn-yes:hover { background: #2ea043; transform: scale(1.05); }
+
+        .btn-no { background: var(--red); color: #fff; position: relative; z-index: 10; }
+
+        .secret-message {
+            display: none;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            text-align: left;
+            animation: fadeIn 0.8s forwards;
+        }
+
+        .secret-message p { margin-bottom: 12px; color: #e6edf3; }
+        .signature { font-style: italic; color: #8b949e; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+            <div class="terminal-title">bash — sasha@poland-server:~</div>
+        </div>
+        <div class="terminal-body" id="terminal"></div>
+    </div>
+
+    <div class="card">
+        <span class="badge">Release v29.0 • Legacy Edition</span>
+        <h1>С Днём Рождения, Саша! 🎉</h1>
+        <p>Официальный билд от 19.11.1997 успешно обновлён до версии 29.0. Стабильность системы повышена, уровень ворчания оптимизирован.</p>
+        
+        <div class="timer-box">
+            <div class="timer-label">⏳ До юбилея (30.0) и первой записи к ортопеду осталось:</div>
+            <div class="timer-digits" id="countdown">Загрузка...</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📋 Changelog (Что нового в 29.0)</h2>
+        <ul class="changelog-list">
+            <li>
+                <span class="tag tag-add">New</span>
+                <span>Добавлена фоновая функция «Лёгкий хруст коленей при вставании из-за компа».</span>
+            </li>
+            <li>
+                <span class="tag tag-add">New</span>
+                <span>Активирован режим «Я уже стар для этого дерьма» при любых предложениях отметить ДР.</span>
+            </li>
+            <li>
+                <span class="tag tag-fix">Fixed</span>
+                <span>Исправлен критический баг из юности, когда не хватало денег на нормальный ПК и пиццу.</span>
+            </li>
+            <li>
+                <span class="tag tag-dep">Deprecated</span>
+                <span>Устарела способность не спать до 4 утра и бодро работать на следующий день.</span>
+            </li>
+            <li>
+                <span class="tag tag-add">Core</span>
+                <span>Модуль <b>«Лучший старший брат»</b> работает без сбоев 29-й год подряд.</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card interactive-area">
+        <h2>Ну чё, дед, отмечаем 29-летие?</h2>
+        <p style="color: #8b949e; font-size: 14px;">Выбери один из вариантов ниже:</p>
+        
+        <div class="btn-group">
+            <button class="btn-yes" onclick="celebrate()">Ладно, погнали праздновать 🍻</button>
+            <button class="btn-no" id="runawayBtn" onmouseover="moveButton()" ontouchstart="moveButton()">Я уже стар для этого дерьма</button>
+        </div>
+
+        <div class="secret-message" id="secretMessage">
+            <h2>А вот и правильный выбор! 🔥</h2>
+            <p>Саня, с днём рождения! Хоть мы сейчас и в разных странах, но ты для меня всегда остаёшься главным примером и лучшим старшим братом.</p>
+            <p>Желаю, чтобы код компилировался с первого раза, заказчики и менеджеры не выносили мозг, а в Польше всё складывалось ровно так, как ты задумал.</p>
+            <p>Не важно, сколько цифр в паспорте — для меня ты всё равно молодой. Обязательно ещё увидимся и нормально отметим. Обнял!</p>
+            <div class="signature">— Твой младший брат (сделал этот сайт сам, почти без помощи 😄)</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const lines = [
+        "> Инициализация протокола 'Happy_Birthday_Sasha'...",
+        "> Поиск объекта: Саша (Год сборки: 1997, Локация: Польша)...",
+        "> Обнаружена отмазка: 'Я уже стар для этого дерьма' [ИГНОРИРОВАТЬ]",
+        "> Загрузка поздравления из Беларуси... [100% ОК]"
+    ];
+    const terminal = document.getElementById('terminal');
+    lines.forEach((text, index) => {
+        setTimeout(() => {
+            const div = document.createElement('div');
+            div.className = 'line';
+            div.textContent = text;
+            terminal.appendChild(div);
+        }, index * 800);
+    });
+
+    const targetDate = new Date("November 19, 2027 00:00:00").getTime();
+    setInterval(() => {
+        const now = new Date().getTime();
+        const diff = targetDate - now;
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById("countdown").innerText = 
+            `${days}д ${hours}ч ${minutes}м ${seconds}с`;
+    }, 1000);
+
+    const phrases = [
+        "Не попадёшь!",
+        "Ой, спину прихватило...",
+        "Айтишники не сдаются!",
+        "Ошибка 404: лень не найдена",
+        "Жми зелёную, дед!",
+        "Слишком медленно!"
+    ];
+
+    function moveButton() {
+        const btn = document.getElementById('runawayBtn');
+        const x = Math.random() * 240 - 120;
+        const y = Math.random() * 140 - 70;
+        
+        btn.style.transform = `translate(${x}px, ${y}px)`;
+        btn.innerText = phrases[Math.floor(Math.random() * phrases.length)];
+    }
+
+    function celebrate() {
+        document.getElementById('secretMessage').style.display = 'block';
+        document.getElementById('runawayBtn').style.display = 'none';
+        
+        confetti({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.6 }
+        });
+    }
+</script>
+
+</body>
+</html>
