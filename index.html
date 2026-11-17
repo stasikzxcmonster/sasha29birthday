@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sasha OS v29.0 Release</title>
+    <title>Sasha OS v29.0 — Release Notes</title>
     <script src="https://jsdelivr.net"></script>
     <style>
         :root {
-            --bg: #0d1117;
-            --card: #161b22;
+            --bg: #090c10;
+            --card: rgba(22, 27, 34, 0.85);
             --border: #30363d;
             --text: #c9d1d9;
             --accent: #58a6ff;
@@ -25,16 +25,53 @@
 
         body {
             background-color: var(--bg);
+            background-image: 
+                radial-gradient(rgba(88, 166, 255, 0.12) 1px, transparent 1px),
+                radial-gradient(rgba(137, 87, 229, 0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
             color: var(--text);
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             line-height: 1.6;
             padding: 20px;
             overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Светящееся пятно за курсором */
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(88, 166, 255, 0.18) 0%, rgba(137, 87, 229, 0.08) 40%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            transition: width 0.2s, height 0.2s;
+        }
+
+        /* Искры от курсора */
+        .sparkle {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            animation: sparkleFade 0.6s linear forwards;
+        }
+
+        @keyframes sparkleFade {
+            0% { transform: scale(1) translate(0, 0); opacity: 1; }
+            100% { transform: scale(0) translate(var(--dx), var(--dy)); opacity: 0; }
         }
 
         .container {
             max-width: 750px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .terminal {
@@ -43,11 +80,11 @@
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
 
         .terminal-header {
-            background: var(--card);
+            background: #161b22;
             padding: 10px 15px;
             display: flex;
             align-items: center;
@@ -74,10 +111,22 @@
 
         .card {
             background: var(--card);
+            backdrop-filter: blur(10px);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 25px;
             margin-bottom: 25px;
+            transition: transform 0.3s, border-color 0.3s;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .card:hover {
+            border-color: rgba(88, 166, 255, 0.4);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
@@ -92,6 +141,7 @@
             font-size: 13px;
             font-weight: 600;
             margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(137, 87, 229, 0.3);
         }
 
         .timer-box {
@@ -154,17 +204,64 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.15s;
+            transition: transform 0.15s, box-shadow 0.2s;
         }
 
-        .btn-yes { background: var(--green); color: #fff; }
-        .btn-yes:hover { background: #2ea043; transform: scale(1.05); }
+        .btn-yes {
+            background: var(--green);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(35, 134, 54, 0.4);
+        }
+        .btn-yes:hover {
+            background: #2ea043;
+            transform: scale(1.07);
+            box-shadow: 0 0 25px rgba(46, 160, 67, 0.7);
+        }
 
-        .btn-no { background: var(--red); color: #fff; position: relative; z-index: 10; }
+        .btn-no {
+            background: var(--red);
+            color: #fff;
+            z-index: 1000;
+            transition: left 0.08s ease-out, top 0.08s ease-out, transform 0.1s;
+        }
+
+        /* Вылезающий торт */
+        .cake-popup {
+            display: none;
+            margin: 20px auto 10px;
+            text-align: center;
+            animation: cakeBounce 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .cake-emoji {
+            font-size: 85px;
+            display: inline-block;
+            cursor: pointer;
+            filter: drop-shadow(0 0 20px rgba(255, 190, 46, 0.6));
+            animation: floatCake 2.5s ease-in-out infinite;
+            user-select: none;
+        }
+
+        .cake-hint {
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 5px;
+        }
+
+        @keyframes cakeBounce {
+            0% { transform: scale(0) translateY(60px); opacity: 0; }
+            70% { transform: scale(1.15) translateY(-10px); opacity: 1; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        @keyframes floatCake {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
 
         .secret-message {
             display: none;
-            margin-top: 25px;
+            margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid var(--border);
             text-align: left;
@@ -176,6 +273,8 @@
     </style>
 </head>
 <body>
+
+<div class="cursor-glow" id="cursorGlow"></div>
 
 <div class="container">
     <div class="terminal">
@@ -234,6 +333,12 @@
             <button class="btn-no" id="runawayBtn" onmouseover="moveButton()" ontouchstart="moveButton()">Я уже стар для этого дерьма</button>
         </div>
 
+        <!-- Выпрыгивающий торт -->
+        <div class="cake-popup" id="cakePopup">
+            <div class="cake-emoji" onclick="fireConfetti()" title="Нажми на торт!">🎂</div>
+            <div class="cake-hint">(Нажми на торт для доп. салюта!)</div>
+        </div>
+
         <div class="secret-message" id="secretMessage">
             <h2>А вот и правильный выбор! 🔥</h2>
             <p>Саня, с днём рождения! Хоть мы сейчас и в разных странах, но ты для меня всегда остаёшься главным примером и лучшим старшим братом.</p>
@@ -245,6 +350,31 @@
 </div>
 
 <script>
+    // 1. Светящийся курсор и шлейф искр
+    const glow = document.getElementById('cursorGlow');
+    const colors = ['#58a6ff', '#8957e5', '#3fb950', '#ffbd2e'];
+    let lastSparkle = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        glow.style.left = e.clientX + 'px';
+        glow.style.top = e.clientY + 'px';
+
+        const now = Date.now();
+        if (now - lastSparkle > 35) {
+            lastSparkle = now;
+            const spark = document.createElement('div');
+            spark.className = 'sparkle';
+            spark.style.left = e.clientX + 'px';
+            spark.style.top = e.clientY + 'px';
+            spark.style.background = colors[Math.floor(Math.random() * colors.length)];
+            spark.style.setProperty('--dx', (Math.random() * 40 - 20) + 'px');
+            spark.style.setProperty('--dy', (Math.random() * 40 - 20) + 'px');
+            document.body.appendChild(spark);
+            setTimeout(() => spark.remove(), 600);
+        }
+    });
+
+    // 2. Анимация печати в терминале
     const lines = [
         "> Инициализация протокола 'Happy_Birthday_Sasha'...",
         "> Поиск объекта: Саша (Год сборки: 1997, Локация: Польша)...",
@@ -258,9 +388,10 @@
             div.className = 'line';
             div.textContent = text;
             terminal.appendChild(div);
-        }, index * 800);
+        }, index * 700);
     });
 
+    // 3. Живой таймер до 30-летия (19 ноября 2027)
     const targetDate = new Date("November 19, 2027 00:00:00").getTime();
     setInterval(() => {
         const now = new Date().getTime();
@@ -275,33 +406,58 @@
             `${days}д ${hours}ч ${minutes}м ${seconds}с`;
     }, 1000);
 
+    // 4. Сверхбыстрая убегающая кнопка по всему экрану
     const phrases = [
         "Не попадёшь!",
+        "Слишком медленно, дед!",
         "Ой, спину прихватило...",
-        "Айтишники не сдаются!",
-        "Ошибка 404: лень не найдена",
-        "Жми зелёную, дед!",
-        "Слишком медленно!"
+        "404: кнопка не найдена",
+        "Жми зелёную!",
+        "Почти... но нет 😄",
+        "Пинг 999 мс!"
     ];
 
     function moveButton() {
         const btn = document.getElementById('runawayBtn');
-        const x = Math.random() * 240 - 120;
-        const y = Math.random() * 140 - 70;
+        btn.style.position = 'fixed';
         
-        btn.style.transform = `translate(${x}px, ${y}px)`;
+        const padding = 20;
+        const maxX = window.innerWidth - btn.offsetWidth - padding;
+        const maxY = window.innerHeight - btn.offsetHeight - padding;
+        
+        const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+        const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+        
+        btn.style.left = randomX + 'px';
+        btn.style.top = randomY + 'px';
         btn.innerText = phrases[Math.floor(Math.random() * phrases.length)];
     }
 
+    // 5. Мощный двойной салют и выпрыгивающий торт
+    function fireConfetti() {
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 100,
+                angle: 60,
+                spread: 70,
+                origin: { x: 0, y: 0.7 }
+            });
+            confetti({
+                particleCount: 100,
+                angle: 120,
+                spread: 70,
+                origin: { x: 1, y: 0.7 }
+            });
+        }
+    }
+
     function celebrate() {
+        document.getElementById('cakePopup').style.display = 'block';
         document.getElementById('secretMessage').style.display = 'block';
         document.getElementById('runawayBtn').style.display = 'none';
         
-        confetti({
-            particleCount: 120,
-            spread: 80,
-            origin: { y: 0.6 }
-        });
+        fireConfetti();
+        setTimeout(fireConfetti, 400);
     }
 </script>
 
